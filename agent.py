@@ -43,8 +43,8 @@ class CodeAgent:
                 # 发送开始思考信号到前端
                 if response_queue:
                     response_queue.put({
-                        'type': 'thinking_start',
-                        'content': '🤔 正在思考...'
+                        'type': 'thinking_stream',
+                        'content': '🤔 正在思考...\n'
                     })
                 
                 response, action, tool_result = self._get_response_with_action(response_queue)
@@ -136,14 +136,6 @@ class CodeAgent:
                         break
             
             print()  # 换行
-            
-            # 发送思考完成信号
-            if response_queue:
-                response_queue.put({
-                    'type': 'thinking_complete',
-                    'content': full_response
-                })
-            
             # 解析Action
             action = self._extract_action(full_response)
             

@@ -387,13 +387,16 @@ class CodeAgentApp {
                                 this.updateMessage(assistantMessageId, currentContent);
                             } else if (parsed.type === 'tool_call') {
                                 // 显示工具调用信息
-                                this.addMessage('system', parsed.content || '🔧 调用工具...');
+                                this.addToolMessage('tool_call', parsed.content || '🔧 调用工具...');
                             } else if (parsed.type === 'tool_result') {
                                 // 显示工具执行结果
-                                this.addMessage('system', parsed.content || '✅ 工具执行完成');
+                                this.addToolMessage('tool_result', parsed.content || '✅ 工具执行完成');
                             } else if (parsed.type === 'final_answer') {
                                 // 显示最终答案并结束对话
                                 this.addMessage('assistant', parsed.content || '任务完成');
+                                
+                                // 标记最后一个工具容器为完成状态
+                                this.markToolContainerCompleted();
                                 
                                 // 任务完成，重新启用输入
                                 this.chatInput.disabled = false;
@@ -405,6 +408,9 @@ class CodeAgentApp {
                                 this.chatInput.disabled = false;
                                 this.sendBtn.disabled = false;
                                 this.sendBtn.textContent = '发送';
+                                
+                                // 标记最后一个工具容器为完成状态
+                                this.markToolContainerCompleted();
                                 return;
                             }
                         } catch (parseError) {
@@ -460,6 +466,82 @@ class CodeAgentApp {
         this.scrollToBottom();
         
         return messageId;
+    }
+
+    addToolMessage(type, content) {
+        const messageId = 'tool_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        // 查找或创建工具执行容器
+        let toolContainer = document.querySelector('.tool-execution-container:last-child');
+        
+        if (!toolContainer || toolContainer.classList.contains('completed')) {
+            // 创建新的工具执行容器
+            toolContainer = document.createElement('div');
+            toolContainer.className = 'message system tool-execution-container';
+            
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = '<i class="fas fa-tools"></i>';
+            
+            const contentWrapper = document.createElement('div');
+            contentWrapper.className = 'message-content';
+            
+            const header = document.createElement('div');
+            header.className = 'tool-header';
+            header.innerHTML = '<i class="fas fa-cogs"></i> 工具执行过程';
+            
+            const scrollContainer = document.createElement('div');
+            scrollContainer.className = 'tool-scroll-container';
+            
+            const processContainer = document.createElement('div');
+            processContainer.className = 'tool-process-container';
+            
+            scrollContainer.appendChild(processContainer);
+            contentWrapper.appendChild(header);
+            contentWrapper.appendChild(scrollContainer);
+            
+            toolContainer.appendChild(avatar);
+            toolContainer.appendChild(contentWrapper);
+            
+            this.chatMessages.appendChild(toolContainer);
+        }
+        
+        // 添加工具步骤
+        const processContainer = toolContainer.querySelector('.tool-process-container');
+        const stepDiv = document.createElement('div');
+        stepDiv.className = `tool-step ${type}`;
+        stepDiv.id = messageId;
+        
+        const stepIcon = document.createElement('div');
+        stepIcon.className = 'tool-step-icon';
+        if (type === 'tool_call') {
+            stepIcon.innerHTML = '<i class="fas fa-play"></i>';
+        } else {
+            stepIcon.innerHTML = '<i class="fas fa-check"></i>';
+        }
+        
+        const stepContent = document.createElement('div');
+        stepContent.className = 'tool-step-content';
+        stepContent.innerHTML = this.formatContentWithLineBreaks(content);
+        
+        stepDiv.appendChild(stepIcon);
+        stepDiv.appendChild(stepContent);
+        processContainer.appendChild(stepDiv);
+        
+        // 滚动到最新步骤
+        const scrollContainer = toolContainer.querySelector('.tool-scroll-container');
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        
+        this.scrollToBottom();
+        
+        return messageId;
+     }
+
+    markToolContainerCompleted() {
+        const lastToolContainer = document.querySelector('.tool-execution-container:last-child');
+        if (lastToolContainer && !lastToolContainer.classList.contains('completed')) {
+            lastToolContainer.classList.add('completed');
+        }
     }
 
     updateMessage(messageId, content, showTypingCursor = false) {
