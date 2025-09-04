@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Agent - AI编程助手</title>
+    <link rel="stylesheet" href="/styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- 顶部标题栏 -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-robot"></i>
+                    <span>Code Agent</span>
+                </div>
+                <div class="status-indicator">
+                    <span class="status-dot" id="statusDot"></span>
+                    <span id="statusText">连接中...</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 左侧工作空间面板 -->
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <h3><i class="fas fa-folder-open"></i> Workspace</h3>
+                    <button class="refresh-btn" id="refreshBtn" title="刷新文件列表">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+                <div class="file-tree" id="fileTree">
+                    <div class="loading">加载中...</div>
+                </div>
+            </aside>
+
+            <!-- 右侧对话区域 -->
+            <main class="chat-area">
+                <div class="chat-container">
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="welcome-message">
+                            <div class="welcome-icon">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <h2>欢迎使用 Code Agent</h2>
+                            <p>我是您的AI编程助手，可以帮您编写、调试和优化代码。</p>
+                            <div class="quick-actions">
+                                <button class="quick-action" data-message="帮我分析一下当前项目的结构">
+                                    <i class="fas fa-project-diagram"></i>
+                                    分析项目结构
+                                </button>
+                                <button class="quick-action" data-message="帮我优化代码性能">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    优化性能
+                                </button>
+                                <button class="quick-action" data-message="帮我修复代码中的bug">
+                                    <i class="fas fa-bug"></i>
+                                    修复Bug
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <textarea 
+                                id="chatInput" 
+                                placeholder="输入您的问题或需求..."
+                                rows="1"
+                            ></textarea>
+                            <button id="sendBtn" class="send-btn" disabled>
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        <div class="input-hint">
+                            按 <kbd>Enter</kbd> 发送，<kbd>Shift + Enter</kbd> 换行
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- 文件预览模态框 -->
+    <div class="modal" id="fileModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">文件预览</h3>
+                <button class="modal-close" id="modalClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                
+            </div>
+        </div>
+    </div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
